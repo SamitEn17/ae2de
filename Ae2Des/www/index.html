@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html><!--HTML5 doctype-->
+
+<head>
+<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta http-equiv="Pragma" content="no-cache">
+<script type="text/javascript" charset="utf-8" src="intelxdk.js"></script>
+<script type="text/javascript" language="javascript">
+    // This event handler is fired once the intel libraries are ready
+    function onDeviceReady() {
+        //hide splash screen now that our app is ready to run
+        intel.xdk.device.hideSplashScreen();
+        setTimeout(function () {
+            $.ui.launch();
+        }, 50);
+    }
+    //initial event handler to detect when intel is ready to roll
+    document.addEventListener("intel.xdk.device.ready", onDeviceReady, false);
+</script>
+<script src="js/appframework.ui.min.js"></script>
+<script>
+    $.ui.autoLaunch = false;
+    $.ui.useOSThemes = true; //Change this to false to force a device theme
+    $.ui.blockPageScroll();
+    $(document).ready(function () {
+        if ($.ui.useOSThemes && (!$.os.ios||$.os.ios7))
+            $("#afui").removeClass("ios");
+    });
+</script>
+<link href="css/icons.css" rel="stylesheet" type="text/css">
+<link href="css/af.ui.css" rel="stylesheet" type="text/css">
+
+<script>
+    //***************************************************** สั่งงาน นศ ********************************************************    
+    
+     var teacher;
+     var ph;
+     var idm;
+    
+    
+        function work()
+            
+        {
+            
+            var str =	"Week1="+escape(document.getElementById("gender").value)+"&"+
+                        "Topic1="+escape(document.getElementById("T1").value)+"&"+
+                        "DET1="+escape(document.getElementById("T2").value)+"&"+
+                        "TT="+escape(document.getElementById("T").value);
+             intel.xdk.device.getRemoteData(
+            		    "http://localhost/thitirun/Work_ST.php",
+            		    "POST",
+            		     str,
+                        "success_gelAllwork",
+            		    "error_handler");
+        }
+        
+          function success_gelAllwork(data)
+        {
+            var str = "";
+            alert(str+ "" + data)
+        }
+    
+    
+     //*****************************************************  เลือก assign งานนักศึกษา  ********************************************************    
+    
+        function work_st()
+        
+            
+        {  
+            var str =	
+                        "tc1="+(document.getElementById("TC").value)+"&"+
+                        "st1="+(document.getElementById("SD").value)+"&"+
+                        "w1="+document.getElementById("wtf").value;
+            
+            alert(str);
+            
+                intel.xdk.device.getRemoteData(
+            		    "http://localhost/thitirun/Work_st_ass.php",
+            		    "POST",
+            		     str,
+                        "success_gelAllwork_ass",
+            		    "error_handler1");
+          
+           
+        }
+      
+          function success_gelAllwork_ass(data)
+        {
+            var str = "";
+            alert(str+ "" + data)
+        }
+   
+    
+    //************************************************* แก้ไขสถานะยืนยันการเรียนวิชาโครงงาน *********************************************************  
+     
+  
+    
+     function get_st(student_id) {
+         var str = "STUDENT_ID=" + student_id;
+         alert(student_id);
+         intel.xdk.device.getRemoteData(
+             "http://localhost/thitirun/status.php",
+             "POST",
+             str,
+             "success_get_st",
+             "error_handler");
+        
+     }
+
+
+
+
+     function success_get_st(data) {
+       console.log(data);
+
+         //st = 'class="list" data-appbuilder-object="list">';
+         var st ='<br><br><br>';
+         var members = JSON.parse(data);
+         members.forEach(function (user121) {
+            st+='<br><input style="float:left;" hidden="true" id="editid" value="'+user121.student_id+'"></input>';
+            st+='<br><input style="float:left;" id="status_approve" value="'+user121.status+'"></input>';
+            st+='<br><br><button style="float:left;" onclick="editup_approve('+user121.student_id +')">Submit</button>';
+             
+         });
+
+         //st += '</div>';
+         console.log(st);
+
+         document.getElementById("user121").innerHTML = st;
+
+     }
+
+     function error_handler(data) {
+         alert("error: " + data);
+     }
+
+     
+    //************************************************ เปลี่ยนสถานะการเข้าเรียนวิชาโครงงาน  *************************************************************
+    
+    function editup_approve(student_id)
+    {
+        var str = "STUDENT_ID=" + student_id  +"&";
+        str += "STATUS=" + document.getElementById("status_approve").value;
+        +
+        
+    
+        
+         intel.xdk.device.getRemoteData(
+         "http://localhost/thitirun/edit_up_app.php",
+        "POST",
+        str,    
+        "success_editup",
+        "error_handler");    
+        
+    }
+    
+   
+    function success_editup(data)
+    {
+        
+         alert(" " + data);    
+    }
+        
+    //************************************************ โชว์ นศ ทั้งหมดที่สมัครสมาชิกทั้งหมด  ************************************************
+        
+                    function getAllUsers()
+            		{
+                        
+            		    intel.xdk.device.getRemoteData(
+            		    "http://localhost/thitirun/Members.php",
+            		    "POST",
+            		    "",
+            		    "success_gelAllUsers",
+            		    "error_handler");
+            		}
+                    
+                    
+            		function success_gelAllUsers (data) 
+            		{ 
+            		    
+                        console.log(data);
+                        
+                        str = '<ul class="list" data-appbuilder-object="list">';
+                        var members = JSON.parse(data);
+                        members.forEach(function(user) {
+                       
+                            str += '<li><a href=#temp onClick="getname(' + user.student_id + ')"> ชือ:' + user.name+ '</a></li>';
+                           
+                        });
+                                    
+                        str += '</ul>';     
+                        console.log(str);
+                        
+                        document.getElementById("users").innerHTML= str; 
+                               
+            		}
+    
+    
+       // ************************************************ โชว์ชื่อ นศ ที่ส่งงาน *********************************************************    
+                    function getAllUserss(assing_id)
+            		{
+                        //  var str = "wee=" + weekNumber;
+                        var str = "ASSING_ID=" + assing_id;
+                        ph = teacher;
+            		    intel.xdk.device.getRemoteData(
+            		    "http://localhost/thitirun/listMembers.php",
+            		    "POST",
+            		    str,
+            		    "success_gelAllUserss",
+            		    "error_handler");
+            		}
+            
+           
+            	function success_gelAllUserss (data) 
+            		{ 
+            		    alert(data);
+                        console.log(data);
+                        
+                        str = '<ul class="list" data-appbuilder-object="list">';
+                        var members = JSON.parse(data);
+                        members.forEach(function(users) {
+                        alert("assing_id:" + users.assing_id);
+                 str += "<li><a href=#url onClick=geturl(" + users.assing_id + ")> ชือ" + users.student_answer + '</a></li>';
+                           
+                        });
+                                    
+                        str += '</ul>';     
+                        console.log(str);
+                        
+                        document.getElementById("userss").innerHTML= str; 
+                        
+                               
+            		}
+            function error_handler(data)
+        {
+             alert("error: " + data); 
+        }
+    
+         
+    //************************************************ เปลี่ยนสถานะการส่งงาน S/U *************************************************************
+
+  //*
+    
+     function set_answer_pass(assing_id) {
+        
+         var str ="ASSING_ID=" + assing_id + "&STATUS=pass";
+         alert(assing_id);
+         intel.xdk.device.getRemoteData(
+             "http://localhost/thitirun/edit_up_student.php",
+             "POST",
+             str,
+             "success_get_answer",
+             "error_handler");
+        
+     }
+    //****************************************************
+      function set_answer_notpass(assing_id) {
+         var str ="ASSING_ID=" + assing_id + "&STATUS=not pass";
+         alert(assing_id);
+         intel.xdk.device.getRemoteData(
+             "http://localhost/thitirun/edit_up_student.php",
+             "POST",
+             str,
+             "success_get_answer",
+             "error_handler");
+        
+     }
+
+
+
+
+     function success_get_answer(data) {
+       console.log(data);
+
+        
+
+         //st += '</div>';
+        
+
+         document.getElementById("user_answer").innerHTML = ''+data;
+
+     }
+
+     function error_handler(data) {     
+         alert("error: " + data);
+     }
+    
+    
+     
+    //************************************************ เปลี่ยนสถานะงานแต่ละสัปดาห์  *************************************************************
+    
+   /* function past_answer(student_id)
+    {
+        
+        var str = "WEEK_ID=" + student_id  +"&";
+        str += "STATUS=" + document.getElementById("status_answer").value;
+        +
+        
+         intel.xdk.device.getRemoteData(
+         "http://localhost/thitirun/edit_up_student.php",
+        "POST",
+        str,    
+        "success_past_answer",
+        "error_handler");    
+        alert(student_id);
+    }
+    
+   
+    function success_past_answer(data)
+    {
+        
+         alert(" " + data);    
+    }
+    */
+    
+        // **************************************************** โชว์มูล URL งาน นศ ***************************************************
+           
+             function geturl(assing_id)
+        		{
+                    var str = "ASSING_ID=" + assing_id  +"&";
+                    alert("IDM"+assing_id);
+        		    intel.xdk.device.getRemoteData(
+        		    "http://localhost/thitirun/url.php",
+        		    //\"http://thitirun.1x.biz/member.php",
+        			"POST",
+        		    str,
+        		    "success_url",
+        		    "error_handler");
+        		}
+        
+                function success_url(data) 
+        		{ 
+                    
+        		    
+                    console.log(data);
+                    
+                    str = '<ul class="list" data-appbuilder-object="list">';
+                    var members = JSON.parse(data);
+                    members.forEach(function(user) {
+                        str += '<li>ลำดับ:' + user.assing_id + ' <br><br> URL: ' + user.url_answer   + '<br><br>สถานะงาน :'+user.status+'</li>';
+                    str += '</ul>';
+                    str += '<br>';
+                    str += '<h3>ยืนยันการตรวจงาน</h3>';
+                    str += '<br>';
+                    alert(user.student_id);
+                    str += '<center><a class="button"href=#A onclick="set_answer_pass('+ user.assing_id +');" style="" data-appbuilder-object="button" data-transition="slide" id="">ผ่าน</></center>';
+                    str += '<center><a class="button" onclick="set_answer_notpass('+ user.student_id +');" style="" data-appbuilder-object="button" data-transition="slide" id="">ไม่ผ่าน</></center>';
+                    });
+                    console.log(str);
+                  
+                    document.getElementById("userss1").innerHTML= str; 
+                
+                           
+        		}
+            		
+    
+    
+        
+       // ******************************************************โชว์มูลทั้งหมดของ นศ ***************************************************
+                    function getname(student_id)
+        		{
+                    alert(student_id);
+        		    intel.xdk.device.getRemoteData(
+        		    "http://localhost/thitirun/member.php",
+        		    //"http://thitirun.1x.biz/member.php",
+        			"POST",
+        		    "ID="+student_id,
+        		    "success_name",
+        		    "error_handler");
+        		}
+        
+                function success_name(data) 
+        		{ 
+        		    
+                    console.log(data);
+                    
+                    str = '<ul class="list" data-appbuilder-object="list">';
+                    var members = JSON.parse(data);
+                    members.forEach(function(user) {
+                        str += '<li>ลำดับ:' + user.student_id + ' <br> ชื่อ ' + user.name + '<br> นามสกุล:' + user.lastname + '<br>อีเมล์:' + user. email +'<br>สถานะการยืนยัน:' + user. status + '</li>';
+                         str += '</ul>';
+                    str += '<br>';
+                    str += '<h3>ยืนยันการเข้าเรียนวิชาโครงาน</h3>';
+                    str += '<br>';
+                    alert(user.student_id);
+                    str += '<center><a class="button" href="#B" onclick="get_st('+ user.student_id +');" style="" data-appbuilder-object="button" data-transition="slide" id="">ยืนยัน</></center>';
+                    });
+                                
+                   
+                    
+                    console.log(str);
+                  
+                    document.getElementById("user").innerHTML= str; 
+                           
+        		}
+                   
+        //************************************************** login เข้าสู่ระบบอาจารย์ ****************************************************    
+            
+            
+            function signin()
+            		{
+            		    var str =	"NAME="+escape(document.getElementById("name").value)+"&"+
+            						"PASS="+escape(document.getElementById("password").value);
+            			
+            			intel.xdk.device.getRemoteData(
+            		    "http://localhost/thitirun/signin.php",
+            			"POST",
+            		    str,
+            		    "success_signin",
+            		    "error_handler");
+                    }
+            		function success_signin (data) 
+            		{ 
+                        var jsondata = JSON.parse(data);
+            		    
+            		    if(data != "<h1>User or Password incorrect!!</h1>")
+            		    {
+            		       document.getElementById("signin").style.display = "none";
+                           document.getElementById("welcome").style.display = "block";
+            		    }
+                    
+                        
+                        intel.xdk.cache.setCookie("teacher_id",jsondata[0],-1);
+                    
+                        if(intel.xdk.cache.getCookie("teacher_id"))
+                        {
+                            alert("ยินดีตอนรับเข้าสู่วิชาโครงงาน!!");
+                        }
+                    else
+                        {
+                            alert("UnSucces!!");
+                        }
+                        
+            		}
+</script>
+
+//*************************************************** จบ scripr *******************************************************
+
+
+</head>
+
+<div id="afui" class="ios">
+    <div id="header"></div>
+    <div id="content" style="">
+
+
+
+        <!-- **********************SIGN IN PAGE/Activity**************************-->
+        <div class="panel" title="Sign in" data-nav="nav_0" id="Second" data-appbuilder-object="page"
+        style="">
+            <br>
+            <img src="img/logo.png" style="width: 300px; height: 90px;" alt="Title" data-appbuilder-object="image"
+            class="" title="">
+            <div id="signin" class="input_element form_element" style="width: 100%; overflow: hidden;"
+            data-appbuilder-object="input">
+                <center>
+                    <br>
+                    <br>
+                    <br>
+                    <br>
+                    <input id="name" class="jq-ui-forms" type="text" value="username" style="width:190px;height:25px;">
+                    <br>
+                    <input id="password" class="jq-ui-forms" type="password" value="password" style="width:190px;height:25px;">
+                    <br>
+                    <input type="button" class="button" value="Sign in" onclick="signin();" data-appbuilder-object="button">
+                </center>
+            </div>
+
+
+
+            <br>
+            <br>
+            <div id="welcome" style="display: none;">
+                <ul class="list" data-appbuilder-object="list">
+                    <li><a href="#w1">มอบหมายงาน</a>
+                    </li>
+                    <li><a href="#First" onclick="getAllUsers();">ยืนยันการเรียนโครงงาน</a>
+                    </li>
+
+                    <li><a href="#page_7">ตรวจงาน</a>
+
+                    </li>
+
+                </ul>
+            </div>
+
+
+
+
+
+        </div>
+
+
+
+        <div class="panel" title="Student all" data-nav="nav_0" id="First" data-appbuilder-object="page"
+        style="">
+            <div id="users">
+
+
+            </div>
+
+        </div>
+
+        <div class="panel" title="woek all" data-nav="nav_0" id="First2" data-appbuilder-object="page"
+        style="">
+            <div id="userss"></div>
+
+        </div>
+
+
+
+
+
+        <div class="panel" title="check_test" data-nav="nav_0" id="page_2" data-appbuilder-object="page"
+        style=""></div>
+
+
+        <div class="panel" title="approved" id="temp" data-appbuilder-object="page" style=""
+        data-nav="nav_0">
+            <div id="user">
+
+            </div>
+
+
+        </div>
+
+
+        <div class="panel" title="week" data-nav="nav_0" id="w1" data-appbuilder-object="page"
+        style="">
+            <div class="text_item" data-appbuilder-object="text">
+                <br>
+                <h3>งานที่มอบมาย</h3>
+                <br>
+                <br>
+            </div>
+            <h4>สัปดาห์ที่:</h4>
+            <span><!-- span is needed for android select box fix -->
+        	<select id="gender" class="jq-ui-forms">
+                <option value="0"></option>
+                <option value="1">1</option>
+				<option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="13">14</option>
+                <option value="13">15</option>
+               
+			</select>
+                
+                         
+		  </span>
+            <div class="input_element form_element" style="width: 95%; overflow: hidden;" data-appbuilder-object="input">
+                <label for="">โจทย์</label>
+                <input type="text" style="float:left;" id="T1" placeholder="">
+            </div>
+
+
+
+
+            <div class="textarea_element form_element" style="width: 95%; overflow: hidden;"
+            data-appbuilder-object="textarea">
+                <label for="">อธิบาย</label>
+                <textarea id="T2"></textarea>
+            </div>
+            <h4>อาจารย์มอบหมายงาน:</h4>
+            <span><!-- span is needed for android select box fix -->
+        	<select id="T" class="jq-ui-forms">
+                <option value="0"></option>
+				<option value="1">1</option>
+               
+			
+              
+               
+			</select>
+                
+              
+                <br><br>
+                
+            <center class="" style=""><a class="button" onclick="work();" style="" data-appbuilder-object="button" data-transition="slide" id="">ยืนยัน</a>
+            </center>
+        </span>
+            <center><a class="button" href="#w_st" style="position: relative; z-index: 2;"
+                data-appbuilder-object="button" data-transition="slide">มอบหมายงาน</a>
+            </center>
+        </div>
+        <div class="panel" title="C_work" id="url" data-appbuilder-object="page" style="">
+
+            <div class="text_item" data-appbuilder-object="text" style="">
+                <br>
+                <h3>ตรวจงาน</h3>
+
+                <br>
+                <br>
+                <div id="userss1"></div>
+            </div>
+        </div>
+
+
+
+
+
+        <div class="panel" title="Week" id="page_7" data-appbuilder-object="page" style="">
+
+            <ul class="list" data-appbuilder-object="list">
+                <li><a href="#First2" onclick="getAllUserss(1);">สัปดาห์ 1</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(2);">สัปดาห์ 2</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(3);">สัปดาห์ 3</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(4);">สัปดาห์ 4</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(5);">สัปดาห์ 5</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(6);">สัปดาห์ 6</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(7);">สัปดาห์ 7</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(8);">สัปดาห์ 8</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(9);">สัปดาห์ 9</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(10);">สัปดาห์ 10</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(11);">สัปดาห์ 11</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(12);">สัปดาห์ 12</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(13);">สัปดาห์ 13</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(14);">สัปดาห์ 14</a>
+                </li>
+                <li><a href="#First2" onclick="getAllUserss(15);">สัปดาห์ 15</a>
+                </li>
+            </ul>
+        </div>
+        <div class="panel" title="edit_assing" id="A" data-appbuilder-object="page" style="">
+            <div id="user_answer">
+            </div>
+        </div>
+    </div>
+    <div class="panel" title="edit_st" id="B" data-appbuilder-object="page" style="">
+        <div id="user121">
+        </div>
+    </div>
+
+    <!----------------------------------------------------------------------------------------------------->
+    <div class="panel" title="week_st" id="w_st" data-appbuilder-object="page" style="">
+        <div class="text_item" data-appbuilder-object="text">
+            <br>
+            <h3>เลือกนักศึกษาสั่งงานที่มอบมาย</h3>
+            <br>
+            <br>
+        </div>
+
+        <h4>อาจารย์มอบหมายงาน:</h4>
+        <span><!-- span is needed for android select box fix -->
+        	<select id="TC" class="jq-ui-forms">
+				<option value="0"></option>
+                <option value="1">1</option>
+			
+              
+               
+			</select>
+                </span>
+
+        <br>
+        <br>
+
+        <h4>นักศึกษาชื่อ:</h4>
+        <span><!-- span is needed for android select box fix -->
+        	<select id="SD" class="jq-ui-forms">
+                <option value="0"></option>
+				<option value="1">samit</option>
+                <option value="2">pathapong</option>
+                <option value="3">surashet</option>
+                <option value="4">aekburin</option>
+                <option value="5">sarayut</option>
+                <option value="6">sathaporn</option>
+                <option value="7">navin</option>
+
+               
+			</select>
+   
+                
+           
+        </span>
+
+        <h4>สัปดาห์ที่:</h4>
+        <span><!-- span is needed for android select box fix -->
+        	<select id="wtf" class="jq-ui-forms">
+				<option value="0"></option>
+                <option value="1">1</option>
+				<option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="13">14</option>
+                <option value="13">15</option>
+               
+			</select>
+                
+                         
+		  </span>
+
+
+        <center class="" style=""><a class="button" onclick="work_st();" style="" data-appbuilder-object="button"
+            data-transition="slide" id="">ยืนยัน</a>
+        </center>
+    </div>
+    <!----------------------------------------------------------------------------------------------------->
+    <div id="navbar"> <a href="#Second" class="icon home">Home</a><a href="#page_4" class="icon pencil">Setting</a>
+        <a href="#page_1" class="icon folder">Work</a><a href="#page_3" class="icon stack">Book</a>
+        <a href="#Second" class="icon settings">Sign out</a>
+    </div>
+    <header id="header_0" data-appbuilder-object="header" class="">
+        <a id="backButton" href="#" class="button back" style="visibility: visible; " data-appbuilder-object="button">Back</a>
+        <h1 id="pageTitle" class="">test</h1> 
+    </header>
+    <nav id="nav_0" data-appbuilder-object="nav" class="">
+        <h1>Side Menu</h1>
+    </nav>
+
+</div>
+
+
+
+
+
+</html>
